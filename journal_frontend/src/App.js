@@ -15,14 +15,70 @@ import NotesList from './components/NotesList';
  * Future integration: replace storage layer with API or database service.
  */
 function App() {
-  const [theme, setTheme] = useState('light');
+  // Initialize theme from persisted preference or system preference
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('theme.v1');
+      if (saved === 'light' || saved === 'dark') return saved;
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return prefersDark ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
+  });
 
-  // Local notes state
+  // Local notes state with sample data fallback on first load
   const [notes, setNotes] = useState(() => {
-    // Load from localStorage to provide temporary persistence
     try {
       const raw = localStorage.getItem('notes.v1');
-      return raw ? JSON.parse(raw) : [];
+      if (raw) return JSON.parse(raw);
+
+      // Inject sample notes for demo on initial app load
+      const now = Date.now();
+      const makeId = () =>
+        (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+
+      const samples = [
+        {
+          id: makeId(),
+          title: 'Morning standup notes',
+          content:
+            'Discussed sprint progress: API integration in progress, blockers on auth flow. Follow up with backend team by EOD.',
+          tags: ['work', 'standup'],
+          createdAt: now - 1000 * 60 * 60 * 24 * 1, // 1 day ago
+        },
+        {
+          id: makeId(),
+          title: 'Grocery list',
+          content: '- Oat milk\n- Eggs\n- Spinach\n- Coffee beans\n- Dark chocolate',
+          tags: ['personal', 'shopping'],
+          createdAt: now - 1000 * 60 * 60 * 24 * 2, // 2 days ago
+        },
+        {
+          id: makeId(),
+          title: 'Book highlights: Atomic Habits',
+          content:
+            'Small consistent improvements compound. Design environment for success. Cue -> Craving -> Response -> Reward.',
+          tags: ['reading', 'personal-growth'],
+          createdAt: now - 1000 * 60 * 60 * 24 * 7, // 1 week ago
+        },
+        {
+          id: makeId(),
+          title: 'Project X brainstorming',
+          content:
+            'Ideas: offline-first approach, optimistic updates, tagging system for quick filtering, keyboard shortcuts.',
+          tags: ['work', 'ideas'],
+          createdAt: now - 1000 * 60 * 60 * 6, // 6 hours ago
+        },
+        {
+          id: makeId(),
+          title: 'Workout log',
+          content: '5km run at easy pace. Mobility routine for hips and shoulders. Felt energized.',
+          tags: ['health', 'fitness'],
+          createdAt: now - 1000 * 60 * 30, // 30 minutes ago
+        },
+      ];
+      return samples;
     } catch (e) {
       console.warn('Failed to parse stored notes', e);
       return [];
@@ -34,9 +90,14 @@ function App() {
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  // Effect to apply theme to document element
+  // Effect to apply theme to document element and persist preference
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('theme.v1', theme);
+    } catch {
+      // ignore persistence errors
+    }
   }, [theme]);
 
   // Persist notes locally for demo purposes
@@ -50,7 +111,7 @@ function App() {
 
   // PUBLIC_INTERFACE
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   const handleCreate = () => {
@@ -85,7 +146,7 @@ function App() {
         return [newNote, ...prev];
       }
       // Update
-      return prev.map(n => n.id === partial.id ? { ...n, ...partial } : n);
+      return prev.map(n => (n.id === partial.id ? { ...n, ...partial } : n));
     });
     setShowForm(false);
     setEditingNoteId(null);
@@ -119,8 +180,9 @@ function App() {
             className="theme-toggle"
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
           </button>
         </div>
       </nav>
