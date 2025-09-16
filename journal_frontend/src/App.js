@@ -33,11 +33,16 @@ function App() {
       const raw = localStorage.getItem('notes.v1');
       if (raw) return JSON.parse(raw);
 
-      // Inject sample notes for demo on initial app load
+      // Inject sample notes for demo on initial app load (only when no persisted notes exist)
       const now = Date.now();
+      const days = (n) => 1000 * 60 * 60 * 24 * n;
+      const hours = (n) => 1000 * 60 * 60 * n;
+      const minutes = (n) => 1000 * 60 * n;
+
       const makeId = () =>
         (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
 
+      // 12 diverse demo notes spanning various tags and realistic content
       const samples = [
         {
           id: makeId(),
@@ -45,14 +50,14 @@ function App() {
           content:
             'Discussed sprint progress: API integration in progress, blockers on auth flow. Follow up with backend team by EOD.',
           tags: ['work', 'standup'],
-          createdAt: now - 1000 * 60 * 60 * 24 * 1, // 1 day ago
+          createdAt: now - days(1),
         },
         {
           id: makeId(),
           title: 'Grocery list',
           content: '- Oat milk\n- Eggs\n- Spinach\n- Coffee beans\n- Dark chocolate',
           tags: ['personal', 'shopping'],
-          createdAt: now - 1000 * 60 * 60 * 24 * 2, // 2 days ago
+          createdAt: now - days(2),
         },
         {
           id: makeId(),
@@ -60,7 +65,7 @@ function App() {
           content:
             'Small consistent improvements compound. Design environment for success. Cue -> Craving -> Response -> Reward.',
           tags: ['reading', 'personal-growth'],
-          createdAt: now - 1000 * 60 * 60 * 24 * 7, // 1 week ago
+          createdAt: now - days(7),
         },
         {
           id: makeId(),
@@ -68,14 +73,70 @@ function App() {
           content:
             'Ideas: offline-first approach, optimistic updates, tagging system for quick filtering, keyboard shortcuts.',
           tags: ['work', 'ideas'],
-          createdAt: now - 1000 * 60 * 60 * 6, // 6 hours ago
+          createdAt: now - hours(6),
         },
         {
           id: makeId(),
           title: 'Workout log',
           content: '5km run at easy pace. Mobility routine for hips and shoulders. Felt energized.',
           tags: ['health', 'fitness'],
-          createdAt: now - 1000 * 60 * 30, // 30 minutes ago
+          createdAt: now - minutes(30),
+        },
+        {
+          id: makeId(),
+          title: 'Recipe: Quick Chickpea Salad',
+          content:
+            'Ingredients: canned chickpeas, cucumber, cherry tomatoes, olive oil, lemon, salt, pepper.\nSteps: Rinse chickpeas, chop veggies, dress, toss, and serve.',
+          tags: ['cooking', 'personal'],
+          createdAt: now - days(12),
+        },
+        {
+          id: makeId(),
+          title: 'Learning plan: React hooks',
+          content:
+            'Topics: useState, useEffect, useMemo, useCallback, custom hooks.\nGoal: Build a small app using hooks only and write a summary.',
+          tags: ['learning', 'react', 'work'],
+          createdAt: now - days(3),
+        },
+        {
+          id: makeId(),
+          title: 'Travel checklist - Weekend trip',
+          content:
+            '- Chargers\n- Toiletries\n- Running shoes\n- Reusable water bottle\n- Kindle\n- Light jacket',
+          tags: ['travel', 'checklist', 'personal'],
+          createdAt: now - days(15),
+        },
+        {
+          id: makeId(),
+          title: 'Meeting notes: Client onboarding',
+          content:
+            'Walkthrough of deliverables and timelines. Action items: send access instructions, set up weekly syncs, confirm scope changes.',
+          tags: ['work', 'meetings'],
+          createdAt: now - days(9),
+        },
+        {
+          id: makeId(),
+          title: 'Mind dump',
+          content:
+            'Random thoughts: Try a digital minimalism week, explore local hiking trails, reorganize desk for better ergonomics.',
+          tags: ['journal', 'personal'],
+          createdAt: now - days(20),
+        },
+        {
+          id: makeId(),
+          title: 'Bug investigation log',
+          content:
+            'Observed intermittent 500 errors on /auth/refresh. Hypothesis: expired session tokens not handled. Next: add logs and retry with exponential backoff.',
+          tags: ['work', 'debugging'],
+          createdAt: now - days(5),
+        },
+        {
+          id: makeId(),
+          title: 'Gratitude list',
+          content:
+            '- Family support\n- Good coffee\n- Progress on fitness goals\n- Sunny weather\n- Time to read',
+          tags: ['wellbeing', 'gratitude', 'personal'],
+          createdAt: now - days(28),
         },
       ];
       return samples;
